@@ -13,6 +13,12 @@ export default function CalendarComponent(props) {
         month
     } = props;
 
+    const dialog = useRef(null);
+    const updateDialog = (text) => {
+        dialog.current.show() ;
+        dialog.current.textContent = text;
+    };
+
     const renderRow = (days) => {
         return days.map((day, i) => {
             if(!day) {
@@ -24,7 +30,9 @@ export default function CalendarComponent(props) {
             return (
                 <td 
                     key={day.date + day.weekDay}
-                    className={`${day.isHoliday ? 'text-red-600 font-bold': ''}`}
+                    className={`p-1 ${day.isHoliday ? 'text-red-600 font-bold cursor-pointer hover:rounded-full hover:bg-gray-700': ''}`}
+                    onMouseEnter={() => day.isHoliday && updateDialog(day.details)}
+                    onMouseLeave={() => dialog.current.close()}
                 >
                     <span title={day.details}>{day.date}</span>
                 </td>
@@ -44,7 +52,7 @@ export default function CalendarComponent(props) {
             );
         });
     }
-
+    
     return (
         <div>
             <div className="my-4 text-xl font-bold flex justify-center gap-5">
@@ -54,7 +62,7 @@ export default function CalendarComponent(props) {
                 </span>
                 <img src={arrowRight} onClick={nextMonth} />
             </div>
-            <table className="border border-slate-500 border-separate border-spacing-4 shadow-sm shadow-slate-500">
+            <table className="border border-slate-500 border-separate border-spacing-4 shadow-sm shadow-slate-500 rounded-lg">
                 <thead>
                     <tr>
                         {renderWeeks()}
@@ -70,6 +78,8 @@ export default function CalendarComponent(props) {
                     })}
                 </tbody>
             </table>
+            <dialog data-modal ref={dialog} className="px-6 py-3 rounded-md mt-4 bg-gray-800 font-bold text-[16px]">
+            </dialog>
         </div>
     )
 }
