@@ -17,7 +17,6 @@ class HolidayController extends Controller
      */
     public function index(Request $request)
     {
-        $year = '2024';
         $startMonth = $request->query('start');
         $endMonth = $request->query('end');
 
@@ -25,8 +24,14 @@ class HolidayController extends Controller
             return new HolidayCollection(Holiday::all());
         }
 
-        $start = Carbon::parse($year . '-' . $startMonth . '-1');
-        $end = Carbon::parse($year . '-' . $endMonth . '-1');
+        $endYear = '2024';
+        if($endMonth == '13'){
+            $endMonth = '1';
+            $endYear = '2025';
+        }
+
+        $start = Carbon::parse('2024' . '-' . $startMonth . '-1');
+        $end = Carbon::parse($endYear . '-' . $endMonth . '-1');
 
         $holidays = Holiday::whereDate('date', '>=', $start)
             ->whereDate('date', '<', $end)

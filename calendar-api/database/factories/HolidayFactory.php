@@ -17,7 +17,7 @@ class HolidayFactory extends Factory
     public function definition(): array
     {
         $title = $this->faker->company(); // for holidays names we can use faker->company method for testing purpuses
-        $date = $this->faker->dateTimeThisYear();
+        $date = $this->faker->dateTimeBetween('-3 month', '+9 month');
 
         return [
             'title' => $title,

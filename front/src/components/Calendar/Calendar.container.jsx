@@ -7,7 +7,7 @@ import useHolidays from '../../store/useHolidays'
 export const WEEK_DAYS = ['m', 't', 'w', 'th', 'f', 's', 'su']; 
 
 export default function Calendar() {
-    const [month, setMonth] = useState(1);
+    const [month, setMonth] = useState(3);
     const [year, setYear] = useState(2024);
     const [calendar, setCalendar] = useState(null);
     const calculateCalendar = useCalendarMatrix();
