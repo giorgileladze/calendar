@@ -1,3 +1,3 @@
-import CalendarComponent from "./Calendar.component";
+import Calendar from "./Calendar.container";
 
-export default CalendarComponent;
+export default Calendar;

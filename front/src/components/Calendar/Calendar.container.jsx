@@ -1,46 +1,73 @@
 import { useState, useEffect } from "react";
 import CalendarComponent from './Calendar.component'
+import api from '../../axios';
+import useCalendarMatrix from "../../hooks/useCalendarMatrix";
+import useHolidays from '../../store/useHolidays'
 
 export const WEEK_DAYS = ['m', 't', 'w', 'th', 'f', 's', 'su']; 
 
 export default function Calendar() {
-    const [dateTable, setDateTable] = useState(null);
-    const [month, setMonth] = useState(3);
+    const [month, setMonth] = useState(1);
+    const [year, setYear] = useState(2024);
+    const [calendar, setCalendar] = useState(null);
+    const calculateCalendar = useCalendarMatrix();
+    const store = useHolidays();
+
+    const prevMonth = () => {
+        setMonth(prev => {
+            if(prev === 0) {
+                setYear(prev => prev - 1);
+                return 11;
+            }
+            
+            return prev - 1;
+        })
+    }
+
+    const nextMonth = () => {
+        setMonth(prev => {
+            if(prev === 11) {
+                setYear(prev => prev + 1);
+                return 0;
+            }
+            
+            return prev + 1;
+        })
+    }
 
     useEffect(() => {
-        const day = new Date(2024, month + 1, 0).getDate();
-        const temp = [];
-        let weekTemp = new Array();
-
-        for(let i = 1; i <= day; i++){            
-            const num = new Date(2024, month, i).getDay() - 1; // extract 1 because week days indexing start from sunday
-            const weekDay = WEEK_DAYS.at(num); // num variable for sunday becomes -1, Array.at(-1) will return last el which is sunday
-
-            if(weekDay === 'm' && i != 1){
-                temp.push(weekTemp);
-                weekTemp = new Array();
-            }
-
-            weekTemp.push({
-                date: i,
-                weekDay,
-                weekDayIndex: num
+        const fetchHolidays = async () => {
+            const response = await api.get('/holidays', {
+                params: {
+                    start: month + 1,
+                    end: month + 2,
+                }
             });
+            const holidays = response.data.data;
+            store.updateHolidays(month, holidays);
         }
-        temp.push(weekTemp); // push last iteration results
-
-        // fix first row layout
-        const length = 7 - temp[0].length;
-        for(let i = 0; i < length; i++){
-            temp[0].unshift(null);
+        
+        // do not send new request if store already contains needed data
+        if(!store.holidays[month]){
+            fetchHolidays();
         }
-
-        setDateTable(temp);
     }, [month]);
 
-    if(!dateTable) return null;
-    console.log(dateTable)
+    useEffect(() => {
+        if(store.holidays[month]){
+            setCalendar(calculateCalendar(year, month)); // update old calendar matrix
+        }
+    }, [store.holidays, month])
+
+    if(!calendar) return null;
+
     return (
-        <CalendarComponent dateTable={dateTable}/>
+        <CalendarComponent 
+            calendar={calendar} 
+            month={month}
+            year={year}
+            prevMonth={prevMonth}
+            nextMonth={nextMonth}
+        />
     )
 }
